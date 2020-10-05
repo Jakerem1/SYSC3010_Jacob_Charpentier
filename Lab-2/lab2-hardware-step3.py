@@ -31,4 +31,4 @@ while True:
     log.close()
     
     #This is so that it checks every minute
-    time.sleep(60) 
+    time.sleep(30) 

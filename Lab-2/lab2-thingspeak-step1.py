@@ -1,24 +1,22 @@
-import http.client
-import urllib
 import time
-key = "TMF2NWANR6ALL5AE" # Put your API Key here
-def thermometer():
-    while True:
-        #Calculate CPU temperature of Raspberry Pi in Degrees C
-        temp = int(open('/sys/class/thermal/thermal_zone0/temp').read()) / 1e3 # Get Raspberry Pi CPU temp
-        params = urllib.parse.urlencode({'field1': temp, 'key':key }) 
-        headers = {"Content-typZZe": "application/x-www-form-urlencoded","Accept": "text/plain"}
-        conn = http.client.HTTPConnection("api.thingspeak.com:80")
-        try:
-            conn.request("POST", "/update", params, headers)
-            response = conn.getresponse()
-            print (temp)
-            print (response.status, response.reason)
-            data = response.read()
-            conn.close()
-        except:
-            print ("connection failed")
-        break
+import urllib.request
+import gpiozero
+
+WRITE_URL = "https://api.thingspeak.com/update?api_key="
+WRITE_KEY = "ALSLSDLSDAODSO"
+
+def getCpuTemperature():
+    cpu = gpiozero.CPUTemperature();
+    return cpu.temperature
+
+def write_data_thingspeak():
+    global WRITE_URL, WRITE_KEY
+    # get cpu temperature then post that to thingspeak channel
+    cpuTemperature = getCpuTemperature()
+    temperatureHeader = "&field1={}".format(cpuTemperature)
+    REQUEST_URL = WRITE_URL + WRITE_KEY + temperatureHeader
+    print(REQUEST_URL)
+    data = urllib.request.urlopen(REQUEST_URL)
+    
 if __name__ == "__main__":
-        while True:
-                thermometer()
+    write_data_thingspeak()
